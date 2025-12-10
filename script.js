@@ -17,23 +17,30 @@ function init3DCharacter() {
         antialias: true,
         alpha: true 
     });
-    renderer.setSize(200, 200);
+    renderer.setSize(300, 300);
     renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(window.devicePixelRatio);
     
     // Create Roblox-style character (blocky 1x1x1x1)
     createRobloxCharacter();
     
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x00ff00, 0.3);
+    // Enhanced lighting
+    const ambientLight = new THREE.AmbientLight(0x00ff41, 0.4);
     scene.add(ambientLight);
     
-    const pointLight = new THREE.PointLight(0x00ff00, 1);
+    const pointLight = new THREE.PointLight(0x00ff41, 1, 100);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
     
-    const pointLight2 = new THREE.PointLight(0xff00ff, 0.5);
+    const pointLight2 = new THREE.PointLight(0x00d4ff, 0.6, 100);
     pointLight2.position.set(-5, -5, -5);
     scene.add(pointLight2);
+    
+    const spotLight = new THREE.SpotLight(0xff0080, 0.5);
+    spotLight.position.set(0, 10, 0);
+    spotLight.target.position.set(0, 0, 0);
+    scene.add(spotLight);
+    scene.add(spotLight.target);
     
     // Animation loop
     animate();
@@ -42,23 +49,26 @@ function init3DCharacter() {
 function createRobloxCharacter() {
     character = new THREE.Group();
     
-    // Materials with hacker theme
+    // Materials with modern hacker theme
     const bodyMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0x00ff00,
+        color: 0x00ff41,
         emissive: 0x002200,
-        shininess: 100
+        shininess: 100,
+        specular: 0x00ff41
     });
     
     const headMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0x00ff00,
+        color: 0x00ff41,
         emissive: 0x003300,
-        shininess: 100
+        shininess: 100,
+        specular: 0x00ff41
     });
     
     const limbMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0x00cc00,
-        emissive: 0x001100,
-        shininess: 80
+        color: 0x00d4ff,
+        emissive: 0x002244,
+        shininess: 80,
+        specular: 0x00d4ff
     });
     
     // Head (1x1x1 cube)
