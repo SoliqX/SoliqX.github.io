@@ -3,159 +3,653 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HackerHub - GitHub Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>3D Interactive Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #0a0a0a;
+            color: #fff;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Particle System */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideDown 1s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00f5ff, #ff00ff);
+            transition: width 0.3s;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a:hover {
+            color: #00f5ff;
+            transform: translateY(-3px);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            animation: fadeInUp 1.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlow 3s ease infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(255, 0, 255, 0.8));
+            }
+        }
+
+        .hero p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        /* 3D Cube Container */
+        .cube-container {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+            animation: rotateCube 20s infinite linear;
+        }
+
+        @keyframes rotateCube {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(0, 245, 255, 0.5);
+            background: rgba(255, 0, 255, 0.1);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+
+        .cube-face.front  { transform: rotateY(0deg) translateZ(100px); }
+        .cube-face.back   { transform: rotateY(180deg) translateZ(100px); }
+        .cube-face.right  { transform: rotateY(90deg) translateZ(100px); }
+        .cube-face.left   { transform: rotateY(-90deg) translateZ(100px); }
+        .cube-face.top    { transform: rotateX(90deg) translateZ(100px); }
+        .cube-face.bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+        /* Features Section */
+        .features {
+            padding: 100px 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.5s;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 245, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-20px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(0, 245, 255, 0.3);
+            border-color: #00f5ff;
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .feature-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #00f5ff;
+        }
+
+        /* 3D Sphere */
+        .sphere-container {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            width: 150px;
+            height: 150px;
+            z-index: 100;
+        }
+
+        .sphere {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #00f5ff, #ff00ff);
+            box-shadow: 0 0 50px rgba(0, 245, 255, 0.5);
+            animation: floatSphere 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sphere:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 80px rgba(255, 0, 255, 0.8);
+        }
+
+        @keyframes floatSphere {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 245, 255, 0.3);
+            transform: scale(0);
+            animation: rippleEffect 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Sound Button */
+        .sound-toggle {
+            position: fixed;
+            top: 100px;
+            right: 50px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #fff;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 8px 30px rgba(255, 0, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3em;
+            }
+            
+            header {
+                padding: 15px 20px;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+            
+            .features {
+                padding: 50px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
     
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
     <header>
-        <nav class="navbar">
-            <div class="logo">
-                <i class="fas fa-code"></i>
-                <span>HackerHub</span>
-            </div>
-            <ul class="nav-links">
+        <div class="logo">3D PORTAL</div>
+        <nav>
+            <ul>
                 <li><a href="#home">Home</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#skills">Skills</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
     </header>
 
-    <main>
-        <section id="home" class="hero">
-            <div class="hero-content">
-                <h1 class="glitch-text" data-text="HACKER_DEV">HACKER_DEV</h1>
-                <p class="typing-text">Code • Hack • Create</p>
-                <p class="hero-description">Crafting digital experiences through the art of code. Specializing in cybersecurity, penetration testing, and innovative web solutions.</p>
-                <div class="social-links">
-                    <a href="https://github.com" target="_blank" class="social-link">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="social-link">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-link">
-                        <i class="fab fa-discord"></i>
-                    </a>
-                    <a href="#" class="social-link">
-                        <i class="fab fa-linkedin"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="character-container">
-                <canvas id="roblox-character"></canvas>
-                <div class="character-info">
-                    <p>Roblox Hacker v1.0</p>
-                </div>
-            </div>
-        </section>
+    <!-- Sound Toggle -->
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
 
-        <section id="projects" class="projects">
-            <h2 class="section-title">GitHub Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-terminal"></i>
-                        <h3>Terminal Hacker</h3>
-                    </div>
-                    <p>Advanced terminal-based hacking simulator with matrix effects</p>
-                    <div class="project-tech">
-                        <span>Python</span>
-                        <span>Terminal</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-shield-alt"></i>
-                        <h3>Crypto Breaker</h3>
-                    </div>
-                    <p>Cryptographic analysis and breaking tools suite</p>
-                    <div class="project-tech">
-                        <span>C++</span>
-                        <span>OpenSSL</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-network-wired"></i>
-                        <h3>Network Scanner</h3>
-                    </div>
-                    <p>Network vulnerability scanner with 3D visualization</p>
-                    <div class="project-tech">
-                        <span>JavaScript</span>
-                        <span>Three.js</span>
-                    </div>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="cube-container">
+            <div class="cube">
+                <div class="cube-face front">✨</div>
+                <div class="cube-face back">🚀</div>
+                <div class="cube-face right">💎</div>
+                <div class="cube-face left">⚡</div>
+                <div class="cube-face top">🌟</div>
+                <div class="cube-face bottom">🔥</div>
             </div>
-        </section>
+        </div>
+        
+        <div class="hero-content">
+            <h1>Welcome to the Future</h1>
+            <p>Experience 3D Magic with Advanced Animations</p>
+            <button class="cta-button" onclick="createRipple(event)">Explore Now</button>
+        </div>
+    </section>
 
-        <section id="skills" class="skills">
-            <h2 class="section-title">Hacker Skills</h2>
-            <div class="skills-container">
-                <div class="skill-card">
-                    <div class="skill-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <h3>Cryptography</h3>
-                    <div class="skill-bar">
-                        <div class="skill-progress" style="width: 85%"></div>
-                    </div>
-                </div>
-                <div class="skill-card">
-                    <div class="skill-icon">
-                        <i class="fas fa-bug"></i>
-                    </div>
-                    <h3>Penetration Testing</h3>
-                    <div class="skill-bar">
-                        <div class="skill-progress" style="width: 90%"></div>
-                    </div>
-                </div>
-                <div class="skill-card">
-                    <div class="skill-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3>Reverse Engineering</h3>
-                    <div class="skill-bar">
-                        <div class="skill-progress" style="width: 75%"></div>
-                    </div>
-                </div>
-                <div class="skill-card">
-                    <div class="skill-icon">
-                        <i class="fas fa-network-wired"></i>
-                    </div>
-                    <h3>Network Security</h3>
-                    <div class="skill-bar">
-                        <div class="skill-progress" style="width: 95%"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3>3D Graphics</h3>
+            <p>Immersive 3D models and animations that bring your content to life with stunning visual effects.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Lightning Fast</h3>
+            <p>Optimized performance with smooth 60fps animations and instant loading times.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🎵</div>
+            <h3>Sound Effects</h3>
+            <p>Interactive audio feedback that enhances user experience with every interaction.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">✨</div>
+            <h3>Particle System</h3>
+            <p>Dynamic particle effects that create an engaging and magical atmosphere.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🌈</div>
+            <h3>Color Gradients</h3>
+            <p>Beautiful gradient animations that flow smoothly across the interface.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Interactive</h3>
+            <p>Responsive elements that react to user interactions with smooth transitions.</p>
+        </div>
+    </section>
 
-        <section id="contact" class="contact">
-            <h2 class="section-title">Contact Matrix</h2>
-            <div class="contact-form">
-                <form>
-                    <input type="text" placeholder="Enter your handle..." required>
-                    <input type="email" placeholder="Secure email channel..." required>
-                    <textarea placeholder="Encrypt your message..." rows="5" required></textarea>
-                    <button type="submit" class="submit-btn">
-                        <i class="fas fa-paper-plane"></i>
-                        Send Encrypted Message
-                    </button>
-                </form>
-            </div>
-        </section>
-    </main>
+    <!-- Floating 3D Sphere -->
+    <div class="sphere-container">
+        <div class="sphere" onclick="sphereClick()"></div>
+    </div>
 
-    <footer>
-        <p>&copy; 2024 HackerHub | Coded in the Matrix</p>
-    </footer>
+    <!-- Audio Elements -->
+    <audio id="hoverSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE" type="audio/wav">
+    </audio>
+    
+    <audio id="clickSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE" type="audio/wav">
+    </audio>
 
-    <script src="script.js"></script>
+    <script>
+        // Create Particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Ripple Effect
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            button.appendChild(ripple);
+            
+            playSound('clickSound');
+            
+            setTimeout(() => ripple.remove(), 1000);
+        }
+
+        // Sphere Click Effect
+        function sphereClick() {
+            const sphere = document.querySelector('.sphere');
+            sphere.style.animation = 'none';
+            setTimeout(() => {
+                sphere.style.animation = 'floatSphere 3s ease-in-out infinite';
+            }, 10);
+            playSound('clickSound');
+        }
+
+        // Sound Functions
+        let soundEnabled = true;
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const button = document.getElementById('soundToggle');
+            button.textContent = soundEnabled ? '🔊' : '🔇';
+            playSound('clickSound');
+        }
+
+        function playSound(soundId) {
+            if (soundEnabled) {
+                const sound = document.getElementById(soundId);
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }
+
+        // Hover Sound Effects
+        document.querySelectorAll('nav a, .feature-card, .cta-button').forEach(element => {
+            element.addEventListener('mouseenter', () => playSound('hoverSound'));
+        });
+
+        // Mouse Trail Effect
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.9) {
+                const trail = document.createElement('div');
+                trail.className = 'particle';
+                trail.style.left = e.clientX + 'px';
+                trail.style.top = e.clientY + 'px';
+                trail.style.position = 'fixed';
+                trail.style.width = '5px';
+                trail.style.height = '5px';
+                trail.style.animation = 'rippleEffect 1s ease-out';
+                document.body.appendChild(trail);
+                setTimeout(() => trail.remove(), 1000);
+            }
+        });
+
+        // Parallax Effect
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            document.querySelector('.cube-container').style.transform = 
+                `translateX(${moveX}px) translateY(${moveY}px)`;
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            createParticles();
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Feature Cards Animation on Scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>
